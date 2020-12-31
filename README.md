@@ -1,6 +1,6 @@
 <h1 align="center">
   <br>
-    <img src="https://github.com/OlegKunitsyn/ecblunit/blob/master/icon.png?raw=true" alt="logo" width="200">
+    <img src="https://github.com/OlegKunitsyn/ecblunit/blob/main/icon.png?raw=true" alt="logo" width="200">
   <br>
   ECBLUnit tool
   <br>
@@ -10,7 +10,7 @@
 <h4 align="center">Simple Unit Testing for z/OS written in IBM Enterprise COBOL.</h4>
 
 <p align="center">
-  <img src="https://github.com/OlegKunitsyn/ecblunit/workflows/ci/badge.svg?branch=master" />
+  <img src="https://github.com/OlegKunitsyn/ecblunit/workflows/ci/badge.svg?branch=main" />
 </p>
 
 ### Features
@@ -42,7 +42,7 @@ $ zowe zosmf check status
 ```
 
 ### Installation
-Simply download [ecblunit.cbl](https://raw.githubusercontent.com/OlegKunitsyn/ecblunit/master/src/ecblunit.cbl) file or install by 
+Simply download [ecblunit.cbl](https://raw.githubusercontent.com/OlegKunitsyn/ecblunit/main/src/ecblunit.cbl) file or install by 
 [COBOL Package Manager](https://github.com/OlegKunitsyn/cobolget):
 ```
 $ npm install -g cobolget
