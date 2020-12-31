@@ -1,0 +1,21 @@
+{
+  "name": "ecblunit",
+  "description": "Simple Unit Testing for z/OS written in IBM Enterprise COBOL",
+  "modules": [
+    "src/ecblunit.cbl"
+  ],
+  "dialect": "entcobol",
+  "licenses": [
+    "GPL-2.0"
+  ],
+  "authors": [
+    "Olegs Kunicins"
+  ],
+  "dependencies": {},
+  "dependencies-debug": {},
+  "scripts": {
+    "upload:ecblunit": "zowe zos-files upload file-to-data-set src/ecblunit.cbl Z82698.CBL",
+    "upload:tests": "zowe zos-files upload file-to-data-set tests/tests.cbl Z82698.CBL",
+    "tests": "zowe jobs submit local-file tests/tests.jcl --view-all-spool-content"
+  }
+}

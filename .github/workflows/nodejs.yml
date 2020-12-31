@@ -1,0 +1,21 @@
+name: ci
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Use Node.js
+      uses: actions/setup-node@v1
+      with:
+        node-version: '12.x'
+    - run: npm i -g @zowe/cli --ignore-scripts
+    - run: zowe profiles create zosmf ztrial --host $HOST --port $PORT --user $USER --pass $PASS --reject-unauthorized false
+    - run: zowe zosmf check status
+    - run: zowe zos-files upload file-to-data-set src/ecblunit.cbl Z82698.CBL
+    - run: zowe zos-files upload file-to-data-set tests/tests.cbl Z82698.CBL
+    - run: exit `zowe jobs submit local-file tests/tests.jcl --wait-for-output --rff retcode --rft string | cut -d" " -f 2`
