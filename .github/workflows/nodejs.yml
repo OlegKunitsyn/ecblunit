@@ -16,6 +16,6 @@ jobs:
     - run: npm i -g @zowe/cli --ignore-scripts
     - run: zowe profiles create zosmf ztrial --host ${{ secrets.HOST }} --port ${{ secrets.PORT }} --user ${{ secrets.USER }} --pass ${{ secrets.PASS }} --reject-unauthorized false
     - run: zowe zosmf check status
-    - run: zowe zos-files upload file-to-data-set src/ecblunit.cbl Z82698.CBL
-    - run: zowe zos-files upload file-to-data-set tests/tests.cbl Z82698.CBL
+    - run: zowe zos-files upload file-to-data-set src/ecblunit.cbl ${{ secrets.USER }}.CBL
+    - run: zowe zos-files upload file-to-data-set tests/tests.cbl ${{ secrets.USER }}.CBL
     - run: exit `zowe jobs submit local-file tests/tests.jcl --wait-for-output --rff retcode --rft string | cut -d" " -f 2`
