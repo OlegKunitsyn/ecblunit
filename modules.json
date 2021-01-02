@@ -1,6 +1,6 @@
 {
   "name": "ecblunit",
-  "description": "Simple Unit Testing for z/OS written in IBM Enterprise COBOL",
+  "description": "Simple Unit Testing for z/OS",
   "modules": [
     "src/ecblunit.cbl"
   ],
