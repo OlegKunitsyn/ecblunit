@@ -22,7 +22,7 @@
 * Zowe command-line interface
 
 #### z/OS account
-Obtain an access to a mainframe for training purposes, free of charge. [Register at IBM](https://www-40.ibm.com/events/wwe/ast/mtm/cobolvscode.nsf/enrollall?openform) and and follow the instructions. You'll be forwarded to [Open Mainframe Project Slack workspace](https://openmainframeproject.slack.com) get a password.
+Obtain an access to a mainframe for training purposes, free of charge. [Register at IBM](https://www.ibm.com/events/wwe/ast/mtm/cobolvscode.nsf/enrollall) and follow the instructions. You'll receive a registration email with USER ID e.g. *Z82698*, IP address e.g. *192.86.32.250* and PORT e.g. *10443*. For generating the password, you need to login on [Open Mainframe Project Slack workspace](https://openmainframeproject.slack.com). After logging in add `zih` app via `Apps` menu and post `zih` a message e.g. *Hi*. The app will ask your e-mail address and userid that you have received. Post these details one by one and the app will create your PASSWORD for the next step.
 
 #### Zowe CLI
 [Zowe](https://www.zowe.org) is an open-source framework that allows teams to manage, control, script, and develop on the mainframe, a part of the [Open Mainframe Project](https://www.openmainframeproject.org). Zowe provides a Command-Line Interface that lets you interact with the mainframe from your machine.
@@ -30,9 +30,9 @@ Obtain an access to a mainframe for training purposes, free of charge. [Register
 $ npm i -g @zowe/cli --ignore-scripts
 ```
 
-Create Zowe default profile by using your mainframe credentials and setting the --reject-unauthorized flag to `false` that bypasses the certificate requirement:
+Create Zowe default `ztrial` profile by using your z/OS credentials and setting the --reject-unauthorized flag to `false` that bypasses the certificate requirement:
 ```
-$ zowe profiles create zosmf ztrial --host <IP> --port <PORT> --user <USER> --pass <PASSWORD> --reject-unauthorized false
+$ zowe profiles create zosmf ztrial --host <IP> --port <PORT> --user <USER ID> --pass <PASSWORD> --reject-unauthorized false
 Profile created successfully!
 ```
 
@@ -55,8 +55,8 @@ $ cobolget install
 ### Usage
 Upload the files to the mainframe and submit a JCL job which compiles and links them together. Executable `ECBLUNIT` awaits a list of test programs in `PARM` parameter, separated by space.
 ```
-$ zowe zos-files upload file-to-data-set src/ecblunit.cbl <USER>.CBL
-$ zowe zos-files upload file-to-data-set tests/tests.cbl <USER>.CBL
+$ zowe zos-files upload file-to-data-set src/ecblunit.cbl <USER ID>.CBL
+$ zowe zos-files upload file-to-data-set tests/tests.cbl <USER ID>.CBL
 $ zowe jobs submit local-file tests/tests.jcl --view-all-spool-content
 ...
  ECBLUnit 1.62.6 by Olegs Kunicins and contributors.
