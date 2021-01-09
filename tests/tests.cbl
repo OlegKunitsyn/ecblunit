@@ -247,3 +247,118 @@
       D    DISPLAY "A debug line".
            COMPUTE WS-RESULT = 1 / WS-DIV.
        END PROGRAM TESTERR.
+
+      * Test diff
+       identification division.
+       program-id. testdiff.
+       data division.
+       working-storage section.
+       01 num-data.
+         05 disp     usage display   pic s99v999        value -12.34.
+         05 disp-u   usage display   pic  99v999        value  12.34.
+         05 dispp    usage display   pic spppp9999      value -.0000123.
+         05 dispp-u  usage display   pic  pppp9999      value  .0000123.
+         05 disppp   usage display   pic s9999pppp      value -12340000.
+         05 disppp-u usage display   pic  9999pppp      value  12340000.
+         05 bin      usage binary    pic s99v999        value -12.34.
+         05 bin-u    usage binary    pic  99v999        value  12.34.
+         05 cmp3     usage packed-decimal pic s99v999   value -12.34.
+         05 cmp3-u   usage packed-decimal pic  99v999   value  12.34.
+         05 cmp5     usage comp-5    pic s99v999        value -12.34.
+         05 cmp5-u   usage comp-5    pic  99v999        value  12.34.
+         05 chr      usage binary    pic s999           value -128.
+         05 chr-u    usage binary    pic  999           value 254.
+         05 shrt     usage binary    pic s9(5)          value -32768.
+         05 shrt-u   usage binary    pic  9(5)    value 65535.
+         05 long     usage binary    pic s9(18)   value -2147483648.
+         05 long-u   usage binary    pic  9(18)   value  4294967295.
+       01 num-data-a.
+         05 disp     usage display   pic s99v999        value -12.35.
+         05 disp-u   usage display   pic  99v999        value  12.35.
+         05 dispp    usage display   pic spppp9999      value -.0000124.
+         05 dispp-u  usage display   pic  pppp9999      value  .0000124.
+         05 disppp   usage display   pic s9999pppp      value -12350000.
+         05 disppp-u usage display   pic  9999pppp      value  12350000.
+         05 bin      usage binary    pic s99v999        value -12.33.
+         05 bin-u    usage binary    pic  99v999        value  12.33.
+         05 cmp3     usage packed-decimal pic s99v999   value -12.33.
+         05 cmp3-u   usage packed-decimal pic  99v999   value  12.33.
+         05 cmp5     usage comp-5    pic s99v999        value -12.33.
+         05 cmp5-u   usage comp-5    pic  99v999        value  12.33.
+         05 chr      usage binary    pic s999           value -127.
+         05 chr-u    usage binary    pic  999           value 253.
+         05 shrt     usage binary    pic s9(5)          value -32767.
+         05 shrt-u   usage binary    pic  9(5)          value 65534.
+         05 long     usage binary    pic s9(18)   value -2147483647.
+         05 long-u   usage binary    pic  9(18)   value  4294967294.
+       
+       01 fl-data.
+          05 dbl     usage comp-2         value -3.40282e+38.
+          05 flt     usage comp-1         value 3.40282e+38.
+       01 fl-data-a.
+          05 dbl     usage comp-2         value -3.30282e+38.
+          05 flt     usage comp-1         value 3.30282e+38.
+       
+       01 anum-data.
+          05 alpnum     pic x(36) value "some numb3rs 4 n00bs l1k3 m3".
+          05 alpha      pic a(36) value "thats some text".
+          05 edit-num1  pic --9.999.
+          05 edit-num2  pic ++9.999.
+          05 edit-num3  pic zz9.999.
+       01 anum-data-a.
+          05 alpnum     pic x(36) value "some numb3rs 4 n11bs l1k3 m3".
+          05 alpha      pic a(36) value "thats sometext".
+          05 edit-num1  pic ++9.999.
+          05 edit-num2  pic --9.999.
+          05 edit-num3  pic -zz9.999.
+       procedure division.
+       all-tests section.
+           perform num-data-test.
+           perform fl-data-test.
+           perform anum-data-test.
+           goback.
+
+       num-data-test section.
+           call "ecblueq" using disp of num-data-a, disp of num-data.
+           call "ecblueq" using disp-u of num-data-a, 
+              disp-u of num-data.
+           call "ecblueq" using dispp of num-data-a, dispp of num-data.
+           call "ecblueq" using dispp-u of num-data-a, 
+              dispp-u of num-data.
+           call "ecblueq" using disppp of num-data-a, 
+              disppp of num-data.
+           call "ecblueq" using disppp-u of num-data-a, 
+              disppp-u of num-data.
+           call "ecblueq" using bin of num-data-a, bin of num-data.
+           call "ecblueq" using bin-u of num-data-a, bin-u of num-data.
+           call "ecblueq" using cmp3 of num-data-a, cmp3 of num-data.
+           call "ecblueq" using cmp3-u of num-data-a, 
+              cmp3-u of num-data.
+           call "ecblueq" using cmp5 of num-data-a, cmp5 of num-data.
+           call "ecblueq" using cmp5-u of num-data-a, 
+              cmp5-u of num-data.
+           call "ecblueq" using chr of num-data-a, chr of num-data.
+           call "ecblueq" using chr-u of num-data-a, chr-u of num-data.
+           call "ecblueq" using shrt of num-data-a, shrt of num-data.
+           call "ecblueq" using shrt-u of num-data-a, 
+              shrt-u of num-data.
+           call "ecblueq" using long of num-data-a, long of num-data.
+           call "ecblueq" using long-u of num-data-a, 
+              long-u of num-data.
+       
+       fl-data-test section.
+           call "ecblueq" using dbl of fl-data-a, dbl of fl-data.
+           call "ecblueq" using flt of fl-data-a, flt of fl-data.
+       
+       anum-data-test section.
+           call "ecblueq" using alpnum of anum-data-a, 
+              alpnum of anum-data.
+           call "ecblueq" using alpha of anum-data-a, 
+              alpha of anum-data.
+           call "ecblueq" using edit-num1 of anum-data-a, 
+              edit-num1 of anum-data.
+           call "ecblueq" using edit-num2 of anum-data-a, 
+              edit-num2 of anum-data.
+           call "ecblueq" using edit-num3 of anum-data-a, 
+              edit-num3 of anum-data.
+       end program testdiff.

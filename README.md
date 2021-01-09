@@ -16,6 +16,7 @@
 ### Features
 * Assertions
 * Continuous Integration
+* Hexadecimal diff
 
 ### Requirements
 * z/OS 6.2+ account
@@ -59,7 +60,7 @@ $ zowe zos-files upload file-to-data-set src/ecblunit.cbl <USER ID>.CBL
 $ zowe zos-files upload file-to-data-set tests/tests.cbl <USER ID>.CBL
 $ zowe jobs submit local-file tests/tests.jcl --view-all-spool-content
 ...
- ECBLUnit 1.62.6 by Olegs Kunicins and contributors.
+ ECBLUnit 1.63.7 by Olegs Kunicins and contributors.
 
  Time: 00:00:00
  OK
@@ -68,7 +69,7 @@ $ zowe jobs submit local-file tests/tests.jcl --view-all-spool-content
 ```
 
 ### Writing Tests
-Tests are simple COBOL programs that allow futher execution (without `STOP RUN`). There is no code-generation tricks nor injections.
+Tests are simple COBOL programs that allow further execution (without `STOP RUN`). There is no code-generation tricks nor injections.
 The assertions are COBOL programs and await two values - expected and actual, respectively:
 
 ```

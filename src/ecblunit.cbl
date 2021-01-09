@@ -30,7 +30,7 @@
        01 INTRO.
         05 filler pic x(8) value "ECBLUnit".
         05 filler pic x value SPACE.
-        05 filler pic x(6) value "1.62.6".
+        05 filler pic x(6) value "1.63.7".
         05 filler pic x value SPACE.
         05 filler pic x(35) value "by Olegs Kunicins and contributors.".
         05 filler pic x(2) value x'15'.
@@ -49,15 +49,10 @@
         03 assertions occurs 0 to 999 depending on assertions-counter.
          05 assertion-status pic x value SPACE.
           88 assertion-failed value "F".
-         05 filler pic x value SPACE.
-         05 assertion-suite pic x(32).
-         05 filler pic x value "#".
-         05 assertion-nr pic 9(2).
-         05 filler pic x value SPACE.
-         05 assertion-name pic x(16).
-         05 filler pic x value SPACE.
+         05 assertion-idx pic 9(2) usage binary.
+         05 assertion-nr pic 9(3).
+         05 assertion-name pic x(3) value SPACES.
          05 assertion-expected pic x(32).
-         05 filler pic x(4) value " <> ".
          05 assertion-actual pic x(32).
 
       * handler
@@ -65,10 +60,11 @@
        01 ws-err-msg-ptr usage pointer.
        01 ws-err-fc pic x(12) value low-value.
 
-      * local
-       01 assertions-index pic 9(3) usage binary.
-       01 first-suite pic x(32).
-        88 is-empty value SPACE.
+      * args
+       01 arg-idx pic 9(3) usage binary value 1.
+       01 arg-first pic 9(3) usage binary value 1.
+
+      * timestamps
        01 current-time.
         05 hours pic 9(2).
         05 minutes pic 9(2).
@@ -77,14 +73,18 @@
         05 hours pic 9(2).
         05 minutes pic 9(2).
         05 seconds pic 9(2).
+
+      * local
+       01 idx pic 9(2) usage binary.
+       01 diff-exp-str pic x(32) value SPACES.
+       01 diff-act-str pic x(32) value SPACES.
+       01 diff-pointer pic x(64) value SPACES.
+       01 assertions-index pic 9(3) usage binary.
        01 test-pointer usage procedure-pointer.
        01 testsuite-name pic x(8) value SPACES.
-       01 arg-idx pic 9(3) usage binary value 1.
-       01 arg-first pic 9(3) usage binary value 1.
        01 tests-total pic 9(3) usage binary.
        01 skipped-total pic 9(3) usage binary.
        01 errors-total pic 9(3) usage binary external.
-       01 ws-argv-ptr pic 9(9) usage binary value 1.
        linkage section.
        01 arg.
         05 arg-len pic 9(3) usage binary.
@@ -141,11 +141,39 @@
              display "There was " failures-total of summary 
              " failure(s):"
            end-if.
-           move 0 to assertions-index.
-           perform until assertions-index >= assertions-total of summary
-             add 1 to assertions-index
+           perform varying assertions-index from 1 by 1 
+             until assertions-index > assertions-total of summary
              if assertion-failed(assertions-index)
-               display assertions(assertions-index)
+               *> filter special chars
+               move assertion-expected(assertions-index) to diff-exp-str
+               move assertion-actual(assertions-index) to diff-act-str
+               perform varying idx from 1 by 1 
+                 until idx > length of diff-exp-str
+                 if diff-exp-str(idx:1) is not alphabetic 
+                   and diff-exp-str(idx:1) is not numeric
+                   move "."  to diff-exp-str(idx:1)
+                 end-if
+                 if diff-act-str(idx:1) is not alphabetic 
+                   and diff-act-str(idx:1) is not numeric
+                   move "."  to diff-act-str(idx:1)
+                 end-if
+               end-perform
+               *> show expected
+               display 
+                 "#" assertion-nr(assertions-index) SPACE
+                 assertion-name(assertions-index) SPACE
+                 function hex-of(assertion-expected(assertions-index)) 
+                 SPACE diff-exp-str 
+               *> show actual
+               display 
+                 "         " 
+                 function hex-of(assertion-actual(assertions-index))
+                 SPACE diff-act-str
+               *> show pointer
+               move SPACES to diff-pointer
+               compute idx = assertion-idx(assertions-index) * 2 + 8
+               move "^^" to diff-pointer(idx:)
+               display diff-pointer
              end-if
            end-perform.
        
@@ -207,7 +235,6 @@
        01 assertions-counter pic 9(3) usage binary external.
        01 summary-pointer usage pointer external.
        01 assertions-nr pic 9(2).
-       01 comparison pic s9(9) usage binary.
        01 idx pic 9(2) usage binary.
        linkage section.
        01 expected pic x(32).
@@ -218,15 +245,10 @@
         03 assertions occurs 0 to 999 depending on assertions-counter.
          05 assertion-status pic x value SPACE.
           88 assertion-failed value "F".
-         05 filler pic x value SPACE.
-         05 assertion-suite pic x(32).
-         05 filler pic x value "#".
-         05 assertion-nr pic 9(2).
-         05 filler pic x value SPACE.
-         05 assertion-name pic x(16).
-         05 filler pic x value SPACE.
+         05 assertion-idx pic 9(2) usage binary.
+         05 assertion-nr pic 9(3).
+         05 assertion-name pic x(3) value SPACES.
          05 assertion-expected pic x(32).
-         05 filler pic x(4) value " <> ".
          05 assertion-actual pic x(32).
        procedure division using expected, actual.
            set address of summary to summary-pointer.
@@ -234,28 +256,23 @@
            add 1 to assertions-nr.
            add 1 to assertions-counter.
            move assertions-nr to assertion-nr(assertions-counter).
-
-           move 0 to idx.
-           move 0 to comparison.
-           perform until idx >= length of actual
-               add 1 to idx 
-               compute comparison = 
-                 function ord(expected(idx:1)) 
-                 - function ord(actual(idx:1))
-               if comparison not = 0
-                   exit perform
-               end-if
-           end-perform.
-
-           if comparison = 0
-               move "." to assertion-status(assertions-counter)
-           else
-               move "F" to assertion-status(assertions-counter)
-               add 1 to failures-total
-           end-if.
-
+           move "EQ" to assertion-name(assertions-counter).
            move expected to assertion-expected(assertions-counter).
            move actual to assertion-actual(assertions-counter).
+
+           move 0 to assertion-idx(assertions-counter).
+           perform varying idx from 1 by 1 until idx = length of actual
+             if function hex-of(expected(idx:1)) not = 
+               function hex-of(actual(idx:1))
+               move idx to assertion-idx(assertions-counter)
+               exit perform
+             end-if
+           end-perform.
+
+           if assertion-idx(assertions-counter) not = 0
+             move "F" to assertion-status(assertions-counter)
+             add 1 to failures-total
+           end-if.
        end program ECBLUEQ.
 
       * Assert NEQ
@@ -266,7 +283,6 @@
        01 assertions-counter pic 9(3) usage binary external.
        01 summary-pointer usage pointer external.
        01 assertions-nr pic 9(2).
-       01 comparison pic s9(9) usage binary.
        01 idx pic 9(2) usage binary.
        linkage section.
        01 expected pic x(32).
@@ -277,15 +293,10 @@
         03 assertions occurs 0 to 999 depending on assertions-counter.
          05 assertion-status pic x value SPACE.
           88 assertion-failed value "F".
-         05 filler pic x value SPACE.
-         05 assertion-suite pic x(32).
-         05 filler pic x value "#".
-         05 assertion-nr pic 9(2).
-         05 filler pic x value SPACE.
-         05 assertion-name pic x(16).
-         05 filler pic x value SPACE.
+         05 assertion-idx pic 9(2) usage binary.
+         05 assertion-nr pic 9(3).
+         05 assertion-name pic x(3) value SPACES.
          05 assertion-expected pic x(32).
-         05 filler pic x(4) value " <> ".
          05 assertion-actual pic x(32).
        procedure division using expected, actual.
            set address of summary to summary-pointer.
@@ -293,26 +304,21 @@
            add 1 to assertions-nr.
            add 1 to assertions-counter.
            move assertions-nr to assertion-nr(assertions-counter).
-
-           move 0 to idx.
-           move 0 to comparison.
-           perform until idx >= length of actual
-               add 1 to idx 
-               compute comparison = 
-                 function ord(expected(idx:1)) 
-                 - function ord(actual(idx:1))
-               if comparison not = 0
-                   exit perform
-               end-if
-           end-perform.
-
-           if comparison not = 0
-               move "." to assertion-status(assertions-counter)
-           else
-               move "F" to assertion-status(assertions-counter)
-               add 1 to failures-total
-           end-if.
-
+           move "NEQ" to assertion-name(assertions-counter).
            move expected to assertion-expected(assertions-counter).
            move actual to assertion-actual(assertions-counter).
+
+           move 0 to assertion-idx(assertions-counter).
+           perform varying idx from 1 by 1 until idx = length of actual
+             if function hex-of(expected(idx:1)) not = 
+               function hex-of(actual(idx:1))
+               move idx to assertion-idx(assertions-counter)
+               exit perform
+             end-if
+           end-perform.
+
+           if assertion-idx(assertions-counter) = 0
+             move "F" to assertion-status(assertions-counter)
+             add 1 to failures-total
+           end-if.
        end program ECBLUNEQ.
