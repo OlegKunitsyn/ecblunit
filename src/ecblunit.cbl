@@ -30,7 +30,7 @@
        01 INTRO.
         05 filler pic x(8) value "ECBLUnit".
         05 filler pic x value SPACE.
-        05 filler pic x(6) value "1.63.7".
+        05 filler pic x(6) value "1.64.8".
         05 filler pic x value SPACE.
         05 filler pic x(35) value "by Olegs Kunicins and contributors.".
         05 filler pic x(2) value x'15'.
@@ -49,7 +49,7 @@
         03 assertions occurs 0 to 999 depending on assertions-counter.
          05 assertion-status pic x value SPACE.
           88 assertion-failed value "F".
-         05 assertion-idx pic 9(2) usage binary.
+         05 assertion-idx pic 9(9) usage binary.
          05 assertion-nr pic 9(3).
          05 assertion-name pic x(3) value SPACES.
          05 assertion-expected pic x(32).
@@ -75,7 +75,7 @@
         05 seconds pic 9(2).
 
       * local
-       01 idx pic 9(2) usage binary.
+       01 idx pic 9(9) usage binary.
        01 diff-exp-str pic x(32) value SPACES.
        01 diff-act-str pic x(32) value SPACES.
        01 diff-pointer pic x(64) value SPACES.
@@ -171,7 +171,9 @@
                  SPACE diff-act-str
                *> show pointer
                move SPACES to diff-pointer
-               compute idx = assertion-idx(assertions-index) * 2 + 8
+               compute idx = 8 + 
+                 function mod(assertion-idx(assertions-index), 32) * 2
+               move assertion-idx(assertions-index) to diff-pointer(1:)
                move "^^" to diff-pointer(idx:)
                display diff-pointer
              end-if
@@ -245,7 +247,7 @@
         03 assertions occurs 0 to 999 depending on assertions-counter.
          05 assertion-status pic x value SPACE.
           88 assertion-failed value "F".
-         05 assertion-idx pic 9(2) usage binary.
+         05 assertion-idx pic 9(9) usage binary.
          05 assertion-nr pic 9(3).
          05 assertion-name pic x(3) value SPACES.
          05 assertion-expected pic x(32).
@@ -293,7 +295,7 @@
         03 assertions occurs 0 to 999 depending on assertions-counter.
          05 assertion-status pic x value SPACE.
           88 assertion-failed value "F".
-         05 assertion-idx pic 9(2) usage binary.
+         05 assertion-idx pic 9(9) usage binary.
          05 assertion-nr pic 9(3).
          05 assertion-name pic x(3) value SPACES.
          05 assertion-expected pic x(32).
@@ -322,3 +324,73 @@
              add 1 to failures-total
            end-if.
        end program ECBLUNEQ.
+
+      * Assert REQ
+       identification division.
+       program-id. ECBLUREQ.
+       data division.
+       working-storage section.
+       01 assertions-counter pic 9(3) usage binary external.
+       01 summary-pointer usage pointer external.
+       01 assertions-nr pic 9(2).
+       01 expected-ptr usage pointer.
+       01 expected-idx redefines expected-ptr pic 9(9) usage binary.
+       01 actual-ptr usage pointer.
+       01 actual-idx redefines actual-ptr pic 9(9) usage binary.
+       01 idx pic 9(9) usage binary.
+       linkage section.
+       01 expected usage pointer.
+       01 actual usage pointer. 
+       01 len pic 9(9) usage binary.
+       01 summary.
+        03 assertions-total pic 9(3) usage binary.
+        03 failures-total pic 9(3) usage binary.
+        03 assertions occurs 0 to 999 depending on assertions-counter.
+         05 assertion-status pic x value SPACE.
+          88 assertion-failed value "F".
+         05 assertion-idx pic 9(9) usage binary.
+         05 assertion-nr pic 9(3).
+         05 assertion-name pic x(3) value SPACES.
+         05 assertion-expected pic x(32).
+         05 assertion-actual pic x(32).
+       01 actual-char pic x(32) value SPACES.
+       01 expected-char pic x(32) value SPACES.
+       procedure division using expected, actual, len.
+           set address of summary to summary-pointer.
+           add 1 to assertions-total.
+           add 1 to assertions-nr.
+           add 1 to assertions-counter.
+           move assertions-nr to assertion-nr(assertions-counter).
+           move "REQ" to assertion-name(assertions-counter).
+
+           set actual-ptr to actual.
+           set expected-ptr to expected.
+
+           move 0 to assertion-idx(assertions-counter).
+           perform varying idx from 1 by 1 until idx > len
+             set address of actual-char to actual-ptr
+             set address of expected-char to expected-ptr
+             if function hex-of(expected-char(1:1)) not = 
+               function hex-of(actual-char(1:1))
+               move idx to assertion-idx(assertions-counter)
+               *> rewind
+               compute idx = function mod(idx, 32)
+               compute expected-idx = expected-idx - idx + 1
+               compute actual-idx = actual-idx - idx + 1
+               set address of actual-char to actual-ptr
+               set address of expected-char to expected-ptr
+               move expected-char to 
+                 assertion-expected(assertions-counter)
+               move actual-char to 
+                 assertion-actual(assertions-counter)
+               exit perform
+             end-if
+             add 1 to expected-idx
+             add 1 to actual-idx
+           end-perform.
+
+           if assertion-idx(assertions-counter) not = 0
+             move "F" to assertion-status(assertions-counter)
+             add 1 to failures-total
+           end-if.
+       end program ECBLUREQ.

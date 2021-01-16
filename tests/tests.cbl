@@ -236,6 +236,33 @@
               edit-num3 of anum-data.
        end program TESTNEQ.
 
+      * Test record equality
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. TESTREQ.
+       DATA DIVISION.
+       WORKING-STORAGE SECTION.
+       01 actual.
+         05 FILLER PIC X(5) VALUE "Hello".
+         05 FILLER PIC X VALUE SPACE.
+         05 actual-field PIC X(5) VALUE "World".
+       01 expected-a PIC X(2) VALUE "He".
+       01 expected-b PIC X(11) VALUE "Hello World".
+       01 expected-c PIC X(2) VALUE "Wo".
+       PROCEDURE DIVISION.
+           CALL "ECBLUREQ" USING
+             BY CONTENT ADDRESS OF expected-a
+             BY CONTENT ADDRESS OF actual
+             BY CONTENT LENGTH OF expected-a.
+           CALL "ECBLUREQ" USING
+             BY CONTENT ADDRESS OF expected-b
+             BY CONTENT ADDRESS OF actual
+             BY CONTENT LENGTH OF expected-b.
+           CALL "ECBLUREQ" USING
+             BY CONTENT ADDRESS OF expected-c
+             BY CONTENT ADDRESS OF actual-field
+             BY CONTENT LENGTH OF expected-c.
+       END PROGRAM TESTREQ.
+
       * Test error
        IDENTIFICATION DIVISION.
        PROGRAM-ID. TESTERR.
@@ -316,6 +343,7 @@
            perform num-data-test.
            perform fl-data-test.
            perform anum-data-test.
+           perform anum-pointer-test.
            goback.
 
        num-data-test section.
@@ -361,4 +389,26 @@
               edit-num2 of anum-data.
            call "ecblueq" using edit-num3 of anum-data-a, 
               edit-num3 of anum-data.
+
+       anum-pointer-test section.
+           call "ecblureq" using 
+             by content address of alpnum of anum-data-a,
+             by content address of alpnum of anum-data,
+             by content length of alpnum of anum-data-a.
+           call "ecblureq" using 
+             by content address of alpha of anum-data-a,
+             by content address of alpha of anum-data,
+             by content length of alpha of anum-data-a.
+           call "ecblureq" using 
+             by content address of edit-num1 of anum-data-a,
+             by content address of edit-num1 of anum-data,
+             by content length of edit-num1 of anum-data-a.
+           call "ecblureq" using 
+             by content address of edit-num2 of anum-data-a,
+             by content address of edit-num2 of anum-data,
+             by content length of edit-num2 of anum-data-a.
+           call "ecblureq" using 
+             by content address of edit-num3 of anum-data-a,
+             by content address of edit-num3 of anum-data,
+             by content length of edit-num3 of anum-data-a.
        end program testdiff.

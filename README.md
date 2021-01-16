@@ -15,6 +15,9 @@
 
 ### Features
 * Assertions
+  * `ECBLUEQ` checks binary equality of two 32-byte values
+  * `ECBLUNEQ` checks binary inequality of two 32-byte values
+  * `ECBLUREQ` checks binary equality of two any-length values represented by pointers
 * Continuous Integration
 * Hexadecimal diff
 
@@ -60,35 +63,36 @@ $ zowe zos-files upload file-to-data-set src/ecblunit.cbl <USER ID>.CBL
 $ zowe zos-files upload file-to-data-set tests/tests.cbl <USER ID>.CBL
 $ zowe jobs submit local-file tests/tests.jcl --view-all-spool-content
 ...
- ECBLUnit 1.63.7 by Olegs Kunicins and contributors.
+ ECBLUnit 1.64.8 by Olegs Kunicins and contributors.
 
  Time: 00:00:00
  OK
- Tests: 002, Skipped: 000
- Assertions: 047, Failures: 000, Exceptions: 000                                  
+ Tests: 003, Skipped: 000
+ Assertions: 050, Failures: 000, Exceptions: 000
 ```
 
 ### Writing Tests
 Tests are simple COBOL programs that allow further execution (without `STOP RUN`). There is no code-generation tricks nor injections.
-The assertions are COBOL programs and await two values - expected and actual, respectively:
-
+The assertions are COBOL programs and await two `PIC X(32)` values - expected and actual, respectively:
 ```
-CALL "ECBLUEQ" USING expected, actual.                                
+CALL "ECBLUEQ" USING expected actual.
+CALL "ECBLUNEQ" USING expected actual.
+```
+
+The record-equality assertion awaits two `POINTER` values providing flexible comparison of any data at any position:
+```
+CALL "ECBLUREQ" USING
+    BY CONTENT ADDRESS OF expected
+    BY CONTENT ADDRESS OF actual
+    BY CONTENT LENGTH OF expected.
 ```
 
 More examples you may find in the `tests/tests.cbl` file.
 
-At the moment these assertions are supported:
-* ECBLUEQ for equality
-* ECBLUNEQ for inequality
-
- Expected and actual values are limited by 32 in size. 
-
 ### Continuous Integration
 ECBLUnit returns `RETURN-CODE` of the execution that is usually enough for CI pipelines. Here's an one-liner which picks the exit code from the output, on Linux:
-
 ```
-zowe jobs submit local-file tests/tests.jcl --wait-for-output --rff retcode --rft string | cut -d" " -f 2                        
+zowe jobs submit local-file tests/tests.jcl --wait-for-output --rff retcode --rft string | cut -d" " -f 2
 ```
 
 ### Alternatives
@@ -101,6 +105,5 @@ Nonetheless, you may try two alternatives as well:
 ### TODO
 * Reporting in JUnit format
 * Catch exceptions and stops
-* Assert values of any length
 
 Your contribution is always welcome!
