@@ -47,7 +47,7 @@ $ zowe zosmf check status
 
 ### Installation
 Simply download [ecblunit.cbl](https://raw.githubusercontent.com/OlegKunitsyn/ecblunit/main/src/ecblunit.cbl) file or install by 
-[COBOL Package Manager](https://github.com/OlegKunitsyn/cobolget):
+[COBOL Package Manager](https://cobolget.com):
 ```
 $ npm install -g cobolget
 $ cobolget init
